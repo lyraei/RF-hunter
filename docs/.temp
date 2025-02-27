@@ -1,0 +1,451 @@
+# RF Hunter
+
+RF Hunter is a hobby project that implements a direction-finding system for 2.4 GHz WiFi and Bluetooth signals using an array of directional antennas and ESP32 microcontrollers. It utilizes the Received Signal Strength Indication (RSSI) comparison method to estimate the direction of a signal source.
+
+## Overview
+
+This project aims to build a simple, cost-effective device that can give a general indication of the direction from which a WiFi or Bluetooth signal is originating.  It is intended for educational and experimental purposes and is *not* designed for high-precision localization. The system is designed for indoor use.
+
+## Working Principle
+
+RF Hunter uses an array of eight 2.4 GHz directional antennas, each connected to its own ESP32 microcontroller.  Each ESP32 scans for WiFi or Bluetooth signals and measures the Received Signal Strength (RSSI).  By comparing the RSSI values across all eight antennas, the system determines which antennas are receiving the strongest signal, and thus, the approximate direction of the signal source.  The antenna array uses a 2x4 rectangular configuration.
+
+## Hardware Components
+
+*   **8 x ESP32-WROOM-32 Modules (or equivalent):** These handle Wi-Fi/Bluetooth scanning, RSSI measurement, and (optionally) perform the direction-finding logic.
+*   **8 x 2.4 GHz Directional Antennas (PCB Patch Antennas recommended):** Should be linearly polarized and designed for the 2.4 GHz band.  PCB patch antennas offer a good balance of size, cost, and performance.  Pre-made antennas or DIY PCB antennas can be used.
+*   **Antenna Array PCB:** A custom-designed PCB holds the eight antennas and ESP32 modules, providing power distribution and connections. Antenna spacing should be around 6.5cm (approximately λ/2 at 2.4 GHz).
+*   **5V Power Supply:** Provides power to all ESP32 modules.
+*   **Connectors (Optional but Recommended):** SMA or u.FL connectors for easy antenna connection/replacement.
+*   **Visualization (Optional):** LEDs (arranged in sectors), a small LCD/OLED display, or a serial connection to a computer to display the estimated direction.
+
+## Software/Firmware
+
+The ESP32 firmware is responsible for:
+
+1.  **Scanning:**  Scanning for nearby WiFi or Bluetooth signals (you may choose to filter for specific SSIDs or device addresses, or just look for the strongest signal).
+2.  **RSSI Measurement:**  Reading the RSSI value for each detected signal.
+3.  **Averaging:**  Averaging RSSI values over a short time window (e.g., 5 seconds) to smooth out fluctuations.
+4.  **Direction Estimation (two approaches):**
+    *   **Decentralized (Simple):** Each ESP32 determines the direction locally based on its own RSSI readings compared to its antenna's position in the array.  The simplest implementation might just have each ESP32 controlling an LED to indicate "strongest signal."
+# RF-Hunter: A Simple WiFi/Bluetooth Direction Finder
+
+## Overview
+
+RF-Hunter is a hobby project that explores the basics of direction finding using a simple antenna array and Received Signal Strength Indication (RSSI).  It aims to estimate the direction of WiFi or Bluetooth signals using multiple ESP32 microcontrollers, each connected to a directional antenna. By comparing the RSSI values from different antennas, RF-Hunter approximates the direction of the strongest signal source. This project is intended for educational purposes and experimentation with RF principles.
+
+**Disclaimer:** This project uses a simplified RSSI-based method, so accuracy is limited. Factors like multipath interference and environmental obstructions can significantly affect performance.
+
+## Features
+
+*   **RSSI-Based Direction Finding:** Employs the RSSI triangulation/comparison technique to estimate signal direction.
+*   **ESP32 Microcontroller:** Uses ESP32s for WiFi/Bluetooth scanning and RSSI measurement.
+*   **Directional Antennas:** Uses a small antenna array of directional antennas to improve directionality.
+*   **Modular Design:** Designed to be easily modified and expanded upon.
+*   **Visual Indication:**  (Future enhancement) Intended to visually display the estimated direction using LEDs or a simple display.
+
+## Hardware Components
+
+*   [x] ESP32-WROOM-32 modules (or similar ESP32 modules with WiFi/Bluetooth) - One per antenna.
+*   [x] 2.4 GHz PCB Patch Antennas (or DIY directional antennas).
+*   [x] SMA or u.FL connectors (optional, but recommended) for connecting antennas to ESP32s.
+*   [x] Custom PCB for mounting antennas and ESP32s (recommended).
+*   [x] 5V Power Supply.
+*   [ ] LEDs or Display (for visual indication - optional).
+
+## Software
+
+*   **ESP32 Firmware:**  (See `/firmware` directory for example code - incomplete example provided as a starting point.)
+    *   WiFi/Bluetooth scanning using ESP32 libraries.
+    *   RSSI reading for detected signals.
+    *   Data transmission (either directly to a display, or to a central processing unit for analysis).
+*   **Direction Estimation Algorithm:** (Example code in `/processing` directory - incomplete).  Implemented in a central unit or distributed among ESP32s, this algorithm compares RSSI values and assigns a direction sector.
+
+## Setup and Installation
+
+1.  **Hardware Assembly:** Assemble the PCB with the antennas and ESP32 modules.  Connect antennas to the ESP32 RF inputs.
+2.  **ESP32 Programming:**  Flash the ESP32 firmware onto each ESP32 module.  You will need the Arduino IDE and the ESP32 board support package installed.
+3.  **Power Up:** Connect the power supply to the PCB.
+4.  **Software Configuration:** Configure the firmware with the desired WiFi network credentials (if applicable) or Bluetooth device to track.
+5.  **Upload Direction Estimation Code:**  If using a central processing unit, upload the direction estimation code to that unit.
+
+## Usage
+
+1.  Power on the system.
+2.  The ESP32s will begin scanning for WiFi/Bluetooth signals and measuring RSSI.
+3.  (If LEDs/Display are implemented) The direction estimate will be indicated visually.
+
+## Project Structure
+
+
+    *   **Decentralized with Output (More Flexible):** Each ESP32 sends averaged RSSI values to a central display/output mechanism (e.g., via serial communication or UDP broadcasts).  A separate system (another ESP32, a computer, etc.) then combines the RSSI data, determines the direction, and displays it.
+
+The direction-finding algorithm (whether implemented on individual ESP32s or a central processor) compares RSSI values and assigns the signal source to a sector based on which antennas have the highest RSSI.
+
+## Software Setup
+
+1. Install required libraries to your Arduino IDE
+   * For the ESP32 board follow this tutorial: [https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/](https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/)
+2. Copy and paste code to your Arduino IDE projects directory.
+3. Compile and upload to your ESP32s.
+
+## Building the Project
+
+1.  **Design or Purchase Antennas:**  Either buy pre-made 2.4 GHz patch antennas or design your own PCB patch antennas.
+2.  **Design the Array PCB:** Create a PCB layout for the 2x4 antenna array, including footprints for ESP32s, connectors, and power distribution.
+3.  **Fabricate/Order PCB:** Get the PCB manufactured.
+4.  **Assemble the System:** Solder components onto the PCB, connect antennas, and provide power.
+5.  **Program ESP32s:** Upload the firmware to each of the eight ESP32 modules.
+6.  **Test and Calibrate:**  Experiment with different signal source locations and adjust the software parameters (averaging time, sector boundaries) to fine-tune performance in your environment.
+
+## Limitations
+
+*   **Accuracy:** RSSI-based direction finding is inherently less accurate than methods like Angle of Arrival (AoA) or Time Difference of Arrival (TDoA), especially in indoor environments with multipath interference (signal reflections).
+*   **Multipath Interference:** Reflections from walls, furniture, and other objects will significantly impact RSSI readings and reduce accuracy.
+*   **Indoor Use Only:** Primarily designed and tested for indoor environments. Outdoor performance will likely be significantly worse due to increased interference and distances.
+*   **Signal Strength Variations:**  The system relies on differences in signal strength.  Variations in transmitter power can affect results.
+
+## Potential Improvements
+
+*   **More Sophisticated RSSI Algorithms:** Implement more robust triangulation techniques, fingerprinting, or Kalman filtering for improved accuracy.
+*   **Antenna Calibration:**  Perform a calibration process by taking RSSI measurements from a known source at various locations to create a "map" of RSSI patterns in your environment.
+*   **Different Antenna Types:** Experiment with higher-gain directional antennas (if size allows) or different array geometries.
+*   **Angle of Arrival (AoA) Exploration (Advanced):** Although significantly more complex, exploring AoA methods using specialized RF front-end circuitry could be a future enhancement for increased precision. This is not recommended for the initial hobby project.
+
+
+# RF Hunter
+
+## Overview
+
+RF Hunter is a hobbyist project aimed at building a direction-finding (DF) system capable of detecting the direction of arrival (AoA) of radio frequency (RF) signals in the 2.4 GHz band (Wi-Fi and Bluetooth). The project utilizes an array of directional antennas, RF downconverters, and ESP32 microcontrollers to measure the phase differences of incoming signals and calculate the AoA. This is *not* a high-precision instrument; it's designed for educational and experimental purposes.
+
+## Key Features
+
+*   **Antenna Array:** 8-element patch antenna array (4x2 configuration) for both horizontal (azimuth) and vertical (elevation) direction finding.
+*   **RF Front-End:**  Uses RF switches and dual-channel downconverters (HMC788) with mixers (ADE-1+) for signal downconversion from 2.4 GHz.
+*   **Microcontroller:** Employs an ESP32 microcontroller for RF switch control, ADC reading, phase calculation, and AoA estimation. Additionaly, 4 slave ESP32 microcontrollers sample the ADC.
+*   **Phase Interferometry:** Leverages the principle of phase interferometry to determine the direction of signal sources.
+*   **Synchronization:** Uses a SI5351 clock generator for syncronising ESP32 and RF circuitry.
+*   **Open Source:** Software and design files are (or will be) made available for others to learn from and build upon.
+
+## Hardware Components
+
+*   **Antennas:**
+    *   8 x 2.4 GHz Patch Antennas (e.g., Molex 2194460001 or similar) with U.FL connectors.
+    *   8 x U.FL to SMA cables (short).
+*   **RF Front-End:**
+    *   8 x RF Switches (e.g., HMC241AQS16E).
+    *   4 x Dual Channel Downconverters (HMC788).
+    *  8x Mixers (ADE-1+).
+    *  SI5351
+*   **Microcontrollers:**
+    *   1 x ESP32 (Master)
+    *  4 x ESP32 (Slaves)
+*   **Clock Source:**
+    *   TCXO (Temperature Compensated Crystal Oscillator) -  a suitable 10 MHz TCXO, overclocked.
+*   **Power Supply:**
+    *   Laboratory Power Supply (capable of providing sufficient current and voltage).
+    *   Linear Regulators (e.g., LM1117-3.3) and LDOs for various voltage rails.
+*   **PCB:** Custom-designed PCB (see PCB Design section).
+*   **Other:**
+    *   SMA Connectors
+    *   Decoupling Capacitors (100nF, 10uF)
+    *   50-ohm controlled impedance traces
+
+## Software
+
+The software is written for the ESP32 using the Arduino IDE or PlatformIO.  It consists of two main parts:
+
+1.  **Master ESP32 Code:**
+    *   Controls the RF switches.
+    *   Receives data of I/Q values from slave ESP32's.
+    *   Calculates the phase difference from I/Q data.
+    *   Estimates the Angle of Arrival (AoA).
+    *   Sends the calculated AoA and other data (e.g., via Serial, Wi-Fi).
+    * Implements a calibration routine.
+
+2.  **Slave ESP32 Code:**
+        *  Connect to 2 downconverter outputs
+        * Sample the data from ADCs.
+        * Transfer the data to Master ESP32
+
+## Signal Processing
+
+The core signal processing technique employed is **phase interferometry**.  Here's a simplified explanation:
+
+1.  **Downconversion:** The 2.4 GHz RF signal from each antenna is downconverted to a lower intermediate frequency (IF) using the HMC788 and mixers. The output of each mixer channel is the in-phase (I) and quadrature (Q) components of the signal.
+
+2.  **Sampling:** The I and Q components are sampled by the ESP32's ADCs.
+
+3.  **Phase Difference Calculation:** For each pair of antennas, the phase difference between the received signals is calculated using `atan2(Q, I)`.  This gives a phase angle in radians.
+
+4.  **Angle of Arrival (AoA) Estimation:**  The phase differences from multiple antenna pairs are used to estimate the AoA.  The relationship is based on the geometry of the antenna array and the wavelength of the signal:
+
+    ```
+    AoA = arcsin( (phase_difference * wavelength) / (2 * pi * antenna_spacing) )
+    ```
+    Where the *phase_difference* is between two antennas, *wavelength* is of the signal(aproximately 12.5cm for Wifi), and antenna_spacing is the distance between the same two antennas.
+
+5.  **Calibration:** Due to manufacturing tolerances and component variations, calibration is essential.  This involves measuring the phase differences for known signal source locations and creating a lookup table or applying a correction factor.
+
+## PCB Design
+
+The PCB design is crucial for the proper functioning of the RF circuitry.  Key considerations include:
+
+*   **Impedance Control:**  All RF traces must be designed as 50-ohm transmission lines (microstrip or stripline). A PCB stack-up calculator should be used.
+*   **Ground Plane:** A continuous, unbroken ground plane is essential for signal integrity and minimizing interference.
+*   **Component Placement:**  Keep RF components close together. Separate analog and digital sections.
+*   **Shielding:**  Consider RF shielding around sensitive areas.
+
+## Getting Started
+
+1.  **Clone the Repository:**
+    ```bash
+    git clone <repository_url>
+    ```
+
+2.  **Hardware Setup:** Gather all the hardware components listed above.
+
+3.  **Software Setup:** Install the Arduino IDE or PlatformIO and the necessary ESP32 libraries.
+
+4.  **Breadboard Prototyping (Recommended):** Before committing to a PCB, build a simplified version with *two antennas* on a breadboard to test the core functionality.
+
+5.  **PCB Assembly:** Once the PCB is fabricated, assemble the components, paying close attention to soldering quality, especially for RF components.
+
+6.  **Software Upload:**  Upload the Master and Slaves ESP32 code to the respective microcontrollers.
+
+7.  **Calibration:** Perform the calibration procedure described in the software.
+
+8.  **Testing:** Test the system with known RF sources (e.g., a Wi-Fi router, a Bluetooth device).
+
+## Limitations
+
+*   **Accuracy:** The accuracy of this system is limited by several factors, including component tolerances, noise, multipath interference, and the simplified algorithms used.  It's not a precision measurement device.
+*   **Multipath:** Reflections of signals off objects can significantly affect the accuracy of the AoA estimation.
+*   **Interference:**  The 2.4 GHz band is crowded, and interference from other devices can affect performance.
+*   **Range:** The detection range depends on the signal strength of the source and the gain of the antennas.
+*  **Single Frequency**: The system has to be specifically tuned for a LO and RF frequency. The difference can not exceed the IF frequency.
+
+## Future Improvements
+
+*   **Improved Algorithms:** Implement more sophisticated algorithms (e.g., MUSIC, Capon Beamformer) to improve accuracy and handle multipath.
+*   **RSSI Integration:** Incorporate Received Signal Strength Indication (RSSI) measurements for better source discrimination.
+*   **Multiple Source Detection:** Develop algorithms to detect and locate multiple simultaneous signal sources.
+*   **GUI:** Create a graphical user interface (GUI) to visualize the AoA and other data in real-time.
+* **Automatic Frequency Tuning:** Make the system able to be tuned digitally by using a DDS for the LO.
+
+## Contributing
+
+Contributions to this project are welcome!  If you find bugs, have suggestions, or want to contribute code, please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+
+## Disclaimer
+
+This project is for educational and experimental purposes only.  The author is not responsible for any damage or issues caused by the use of this project.  Use at your own risk.
+
+
+
+# RF Hunter
+
+RF Hunter is a hobby project that utilizes an antenna array to detect WiFi and Bluetooth signals and determine their approximate direction using Received Signal Strength Indication (RSSI) triangulation/comparison. The project leverages multiple ESP32 microcontrollers, each connected to a directional antenna, to achieve this functionality.
+
+## Table of Contents
+
+- [Features](#features)
+- [Components Required](#components-required)
+- [Antenna Array Configuration](#antenna-array-configuration)
+- [Software Setup](#software-setup)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [License](#license)
+
+## Features
+
+- Detects WiFi and Bluetooth signals within a range of approximately 10 meters.
+- Utilizes an 8-antenna array for improved directionality and signal detection.
+- Simple RSSI-based direction estimation algorithm.
+- No special power considerations; powered via a standard power supply.
+
+## Components Required
+
+- 8 x ESP32-WROOM-32 modules (or similar ESP32 modules)
+- 8 x 2.4 GHz directional patch antennas (pre-made or DIY)
+- PCB for the antenna array (optional, for better mounting and connections)
+- SMA or u.FL connectors (if applicable)
+- Power supply (5V)
+- LEDs or small LCD/OLED display for visual feedback (optional)
+
+## Antenna Array Configuration
+
+The antenna array is configured in a 2x4 grid layout, with each ESP32 module connected to one directional antenna. The recommended spacing between antennas is approximately 6.5 cm (λ/2 at 2.4 GHz).
+
+## Software Setup
+
+1. Download and install the Arduino IDE (if you haven't already).
+2. Install the ESP32 board support by adding the following URL to the Arduino IDE preferences:
+   ```plaintext
+   https://dl.espressif.com/dl/package_esp32_index.json
+   
+   
+---
+   
+# RF-hunter
+
+RF-hunter is a hobby project that leverages an array of directional antennas and multiple ESP32 modules to detect WiFi and Bluetooth signals and estimate the direction from which the signals are coming. Designed for indoor operation with an approximate 10-meter range, this project is ideal for makers and enthusiasts interested in RF signal detection, antenna arrays, and DIY direction-finding systems.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Hardware Requirements](#hardware-requirements)
+- [Software Requirements](#software-requirements)
+- [Installation & Setup](#installation--setup)
+- [Usage](#usage)
+- [Calibration & Testing](#calibration--testing)
+- [Future Improvements](#future-improvements)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+---
+
+## Overview
+
+RF-hunter uses an array of directional antennas organized in two columns (four antennas each) with each antenna connected to its own ESP32 receiver module. The system collects Received Signal Strength Indicator (RSSI) measurements for detected WiFi and Bluetooth signals. By comparing the signal strengths from the different antennas and using a simple direction-finding algorithm, RF-hunter estimates where the RF signals originate. Although it’s designed as a hobby project with coarse directional accuracy, it provides an exciting platform to experiment with RF detection and localization indoors.
+
+---
+
+## Features
+
+- **Directional Detection:** Uses directional antennas to focus on specific angles.
+- **Multiple ESP32 Nodes:** Each antenna is paired with an ESP32 for dedicated scanning.
+- **WiFi & Bluetooth Support:** Capable of detecting signals from common 2.4 GHz devices.
+- **RSSI-based Estimation:** Implements a simple algorithm to compare signal strengths and indicate direction.
+- **Indoor Operation:** Optimized for indoor use with at least a 10-meter range.
+- **Low-Cost Build:** Uses affordable components, ideal for hobbyists.
+
+---
+
+## System Architecture
+
+1. **Antenna Array:**  
+   - Two columns of four directional antennas.
+   - Precise physical mounting provides overlapping fields of view for comprehensive coverage.
+
+2. **Receiver Nodes:**  
+   - Each antenna is connected to an ESP32 module.
+   - ESP32 modules scan for WiFi/Bluetooth packets and record RSSI values.
+
+3. **Central Controller:**  
+   - Aggregates RSSI data from all ESP32 nodes via ESP-NOW or WiFi network.
+   - Executes the direction estimation algorithm based on the received data.
+
+4. **Communication:**  
+   - Data is shared among nodes using wireless protocols (e.g., ESP-NOW) or via a wired communication setup.
+
+---
+
+## Hardware Requirements
+
+- ESP32 development boards (one per antenna)
+- Directional antennas (e.g., patch antennas or Yagi antennas)
+- RF cables and connectors (e.g., SMA connectors, low-loss coax)
+- Mounting hardware and/or a custom 3D printed frame for antenna alignment
+- Stable power supply (mains-connected; power consumption is not a primary concern)
+
+---
+
+## Software Requirements
+
+- [Arduino IDE](https://www.arduino.cc/en/software) or [PlatformIO](https://platformio.org/) for firmware development
+- ESP32 board support package installed in your development environment
+- Required libraries for WiFi/Bluetooth scanning and ESP-NOW communication
+
+---
+
+## Installation & Setup
+
+1. **Clone the Repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/rf-hunter.git
+   cd rf-hunter
+   ```
+
+2. **Install Required Libraries:**
+   - Install the ESP32 board package via the Arduino IDE Board Manager.
+   - Install any additional libraries noted in the project documentation.
+
+3. **Upload Firmware:**
+   - Choose the firmware for the Receiver Node or the Central Controller as needed.
+   - Use your preferred development environment (Arduino IDE/PlatformIO) to upload the firmware to each ESP32 module.
+
+4. **Assemble the Hardware:**
+   - Mount the directional antennas on your custom frame ensuring proper orientation.
+   - Connect each antenna to its respective ESP32 board.
+   - Arrange for proper power connections and data cabling among the nodes.
+
+---
+
+## Usage
+
+- **Power on the System:** Connect all ESP32 modules to the power supply.
+- **Start Scanning:** Each ESP32 board will begin scanning for WiFi/Bluetooth signals and capturing RSSI data.
+- **Data Aggregation:** The central controller receives and aggregates RSSI values.
+- **Direction Estimation:** The system computes an estimated direction for the strongest signal source.
+- **Output:** View the direction estimate via a connected display, serial monitor, or a dedicated web dashboard.
+
+---
+
+## Calibration & Testing
+
+- **Calibration Routine:**  
+  - Use a known signal source (e.g., a smartphone or hotspot) placed at predetermined angles.
+  - Record the RSSI values from the antenna array to adjust the direction estimation algorithm.
+  
+- **Testing in Indoor Environment:**  
+  - Account for multipath effects and reflections.
+  - Fine-tune the algorithm by iterative testing until the directional accuracy meets your expectations.
+
+---
+
+## Future Improvements
+
+- Explore enhanced algorithms using time-of-arrival (TOA) or phase difference techniques.
+- Experiment with additional antennas or alternative array geometries for improved resolution.
+- Develop a mobile or web-based dashboard for real-time visualization of signal direction.
+- Integrate machine learning techniques to better filter multipath effects and improve accuracy.
+
+---
+
+## Contributing
+
+Contributions to RF-hunter are welcome! If you have ideas for improvements, enhancements, or bug fixes, please open an issue or submit a pull request.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Acknowledgments
+
+- Special thanks to the ESP32 community and all open-source contributors whose libraries and documentation have made this project possible.
+- Inspiration from various RF signal analysis and direction-finding projects which paved the way for RF-hunter.
+
+---
+
+Happy hunting!  
+The RF-hunter Team
+
+--=
+
+
